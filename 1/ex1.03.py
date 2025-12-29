@@ -5,8 +5,11 @@
 # c performs "histogram stretching" for each color separately
 # d produces and displays an image of the result
 
+# usage example: python ex1.03.py my_image.jpg
+
 from PIL import Image
 import numpy as np
+import matplotlib.pyplot as plt
 from helper_functions import compute_histogram, histogram_stretching, load_image
 
 def main():
@@ -50,9 +53,58 @@ def main():
     stretched_array = np.stack([red_stretched, green_stretched, blue_stretched], axis=2)
     stretched_img = Image.fromarray(stretched_array, 'RGB')
     
-    # d) Display the original and result images
-    img.show(title="Original Image")
-    stretched_img.show(title="Histogram Stretched Image")
+    # Compute histograms for stretched image
+    red_hist_stretched = compute_histogram(red_stretched)
+    green_hist_stretched = compute_histogram(green_stretched)
+    blue_hist_stretched = compute_histogram(blue_stretched)
+    
+    # d) Display the original and result images with histograms
+    fig, axes = plt.subplots(2, 4, figsize=(20, 10))
+    
+    # Original image
+    axes[0, 0].imshow(img)
+    axes[0, 0].set_title('Original Image', fontsize=14, fontweight='bold')
+    axes[0, 0].axis('off')
+    
+    # Original histograms
+    axes[0, 1].bar(range(256), red_hist, color='red', alpha=0.6, width=1)
+    axes[0, 1].set_title('Red Channel Histogram (Original)')
+    axes[0, 1].set_xlabel('Pixel Value')
+    axes[0, 1].set_ylabel('Frequency')
+    
+    axes[0, 2].bar(range(256), green_hist, color='green', alpha=0.6, width=1)
+    axes[0, 2].set_title('Green Channel Histogram (Original)')
+    axes[0, 2].set_xlabel('Pixel Value')
+    axes[0, 2].set_ylabel('Frequency')
+    
+    axes[0, 3].bar(range(256), blue_hist, color='blue', alpha=0.6, width=1)
+    axes[0, 3].set_title('Blue Channel Histogram (Original)')
+    axes[0, 3].set_xlabel('Pixel Value')
+    axes[0, 3].set_ylabel('Frequency')
+    
+    # Stretched image
+    axes[1, 0].imshow(stretched_img)
+    axes[1, 0].set_title('Histogram Stretched Image', fontsize=14, fontweight='bold')
+    axes[1, 0].axis('off')
+    
+    # Stretched histograms
+    axes[1, 1].bar(range(256), red_hist_stretched, color='red', alpha=0.6, width=1)
+    axes[1, 1].set_title('Red Channel Histogram (Stretched)')
+    axes[1, 1].set_xlabel('Pixel Value')
+    axes[1, 1].set_ylabel('Frequency')
+    
+    axes[1, 2].bar(range(256), green_hist_stretched, color='green', alpha=0.6, width=1)
+    axes[1, 2].set_title('Green Channel Histogram (Stretched)')
+    axes[1, 2].set_xlabel('Pixel Value')
+    axes[1, 2].set_ylabel('Frequency')
+    
+    axes[1, 3].bar(range(256), blue_hist_stretched, color='blue', alpha=0.6, width=1)
+    axes[1, 3].set_title('Blue Channel Histogram (Stretched)')
+    axes[1, 3].set_xlabel('Pixel Value')
+    axes[1, 3].set_ylabel('Frequency')
+    
+    plt.tight_layout()
+    plt.show()
     
     # Optionally save the result
     save_option = input("\nDo you want to save the stretched image? (y/n): ")

@@ -4,6 +4,8 @@ import numpy as np
 from pathlib import Path
 from helper_functions import compute_histogram, stretch_histogram, load_image
 
+# usage example: python ex1.02.py my_image.jpg
+
 def main():
     # a. Read an image file
     image_path = input("Enter the path to the image file: ")
