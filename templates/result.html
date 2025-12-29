@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Complete - Image Processing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .success-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #667eea;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .result-image {
+            width: 100%;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .info-box {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">✅</div>
+            <h1>Processing Complete!</h1>
+            <p class="subtitle">Your image has been processed successfully</p>
+            <p class="description">{{ description }}</p>
+        </div>
+        
+        <img src="{{ url_for('static', filename='processed/' + result_image) }}" 
+             alt="Processed Image" 
+             class="result-image">
+        
+        <div class="actions">
+            <a href="/" class="btn btn-primary">
+                🔄 Process Another Image
+            </a>
+            <a href="{{ url_for('download', filename=result_image) }}" 
+               class="btn btn-success" 
+               download>
+                📥 Download Result
+            </a>
+        </div>
+        
+        <div class="info-box">
+            <h3>About This Processing Method</h3>
+            <p>
+                {% if processing_type == 'rgb_channels' %}
+                <strong>RGB Channels Separation:</strong> This technique splits the image into its three color components - Red, Green, and Blue. Each channel shows how much of that particular color contributes to each pixel. This is useful for understanding color distribution and analyzing individual color components.
+                {% elif processing_type == 'grayscale_stretch' %}
+                <strong>Grayscale Histogram Stretching:</strong> This technique first converts the image to grayscale, then stretches the pixel values to use the full 0-255 range. This enhances contrast by making dark pixels darker and bright pixels brighter, resulting in a more vivid image. The histograms show how pixel distribution changes.
+                {% elif processing_type == 'color_stretch' %}
+                <strong>Color Histogram Stretching:</strong> This technique stretches the histogram of each color channel (Red, Green, Blue) separately to use the full 0-255 range. This enhances the overall contrast and color vibrancy of the image while maintaining the original colors. The before/after histograms demonstrate how pixel values are redistributed.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

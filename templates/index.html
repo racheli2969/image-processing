@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing Web App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f8f9ff;
+        }
+        
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+        
+        .upload-icon {
+            font-size: 4em;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .file-name {
+            margin-top: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .options-group {
+            margin-bottom: 30px;
+        }
+        
+        .options-group label {
+            display: block;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .radio-option input[type="radio"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .radio-option input[type="radio"]:checked + label {
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .radio-option.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .option-content {
+            flex-grow: 1;
+        }
+        
+        .option-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .option-description {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Image Processing</h1>
+        <p class="subtitle">Upload an image and choose a processing method</p>
+        
+        {% if error %}
+        <div class="error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+        
+        <form method="POST" action="/process" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📷</div>
+                <label for="fileInput" class="file-label">Click to upload or drag and drop</label>
+                <input type="file" name="image" id="fileInput" accept="image/*" required>
+                <div class="file-name" id="fileName"></div>
+                <img id="preview" class="preview-image" style="display:none;">
+            </div>
+            
+            <div class="options-group">
+                <label>Choose Processing Method:</label>
+                <div class="radio-group">
+                    <div class="radio-option selected">
+                        <input type="radio" name="processing_type" value="rgb_channels" id="rgb" checked>
+                        <div class="option-content">
+                            <div class="option-title">RGB Channels Separation</div>
+                            <div class="option-description">View red, green, and blue color channels separately</div>
+                        </div>
+                    </div>
+                    
+                    <div class="radio-option">
+                        <input type="radio" name="processing_type" value="grayscale_stretch" id="grayscale">
+                        <div class="option-content">
+                            <div class="option-title">Grayscale Histogram Stretching</div>
+                            <div class="option-description">Convert to grayscale and enhance contrast</div>
+                        </div>
+                    </div>
+                    
+                    <div class="radio-option">
+                        <input type="radio" name="processing_type" value="color_stretch" id="color">
+                        <div class="option-content">
+                            <div class="option-title">Color Histogram Stretching</div>
+                            <div class="option-description">Enhance contrast for each color channel</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">Process Image</button>
+        </form>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const preview = document.getElementById('preview');
+        const submitBtn = document.getElementById('submitBtn');
+        const radioOptions = document.querySelectorAll('.radio-option');
+        
+        // Click to upload
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target !== fileInput) {
+                fileInput.click();
+            }
+        });
+        
+        // File selected
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileName.textContent = file.name;
+                submitBtn.disabled = false;
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+        
+        // Radio button styling
+        radioOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                radioOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                option.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+    </script>
+</body>
+</html>
